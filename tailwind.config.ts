@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,13 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				doc: {
+					purple: '#9b87f5',
+					'dark-bg': '#1A1F2C',
+					gray: '#8E9196',
+					'light-purple': '#E5DEFF',
+					'soft-blue': '#D3E4FD'
 				}
 			},
 			borderRadius: {
@@ -84,12 +92,73 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'fade-in': {
+					"0%": {
+						opacity: "0",
+						transform: "translateY(10px)"
+					},
+					"100%": {
+						opacity: "1",
+						transform: "translateY(0)"
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
-			}
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in': 'fade-in 0.3s ease-out'
+			},
+			typography: {
+				DEFAULT: {
+					css: {
+						maxWidth: '100%',
+						color: 'var(--tw-prose-body)',
+						'[class~="lead"]': {
+							color: 'var(--tw-prose-lead)',
+						},
+						a: {
+							color: '#9b87f5',
+							textDecoration: 'underline',
+							fontWeight: '500',
+						},
+						strong: {
+							color: 'var(--tw-prose-bold)',
+							fontWeight: '600',
+						},
+						code: {
+							color: 'var(--tw-prose-code)',
+							borderRadius: '0.25rem',
+							paddingTop: '0.25rem',
+							paddingRight: '0.375rem',
+							paddingBottom: '0.25rem',
+							paddingLeft: '0.375rem',
+							backgroundColor: '#F1F0FB',
+						},
+						'code::before': {
+							content: '""',
+						},
+						'code::after': {
+							content: '""',
+						},
+						pre: {
+							color: 'var(--tw-prose-pre-code)',
+							backgroundColor: 'var(--tw-prose-pre-bg)',
+							overflowX: 'auto',
+							fontWeight: '400',
+							fontSize: '0.875em',
+							lineHeight: '1.7142857',
+							marginTop: '1.7142857em',
+							marginBottom: '1.7142857em',
+							borderRadius: '0.375rem',
+							paddingTop: '0.8571429em',
+							paddingRight: '1.1428571em',
+							paddingBottom: '0.8571429em',
+							paddingLeft: '1.1428571em',
+						},
+					},
+				},
+			},
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
