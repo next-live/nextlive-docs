@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { Outlet, Navigate } from 'react-router-dom';
+import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { AdminSidebar } from './AdminSidebar';
 import { getCurrentUser, isUserAdmin } from '@/services/authService';
 import { Loader2 } from 'lucide-react';
@@ -8,17 +8,25 @@ import { Loader2 } from 'lucide-react';
 export function AdminLayout() {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const location = useLocation();
   
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const user = await getCurrentUser();
-        const adminStatus = await isUserAdmin(user);
         
+        if (!user) {
+          setIsAdmin(false);
+          setLoading(false);
+          return;
+        }
+        
+        const adminStatus = await isUserAdmin(user);
         setIsAdmin(adminStatus);
         setLoading(false);
       } catch (error) {
         console.error('Authentication error:', error);
+        setIsAdmin(false);
         setLoading(false);
       }
     };
@@ -35,7 +43,7 @@ export function AdminLayout() {
   }
   
   if (!isAdmin) {
-    return <Navigate to="/admin/login" replace />;
+    return <Navigate to="/admin/login" state={{ from: location.pathname }} replace />;
   }
   
   return (

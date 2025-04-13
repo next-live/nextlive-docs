@@ -1,6 +1,6 @@
 
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -9,7 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2 } from 'lucide-react';
-import { signIn } from '@/services/authService';
+import { signIn, getCurrentUser, isUserAdmin, seedAdminUser } from '@/services/authService';
+import { useToast } from '@/hooks/use-toast';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email'),
@@ -18,8 +19,11 @@ const loginSchema = z.object({
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { toast } = useToast();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -29,18 +33,52 @@ export default function LoginPage() {
     },
   });
   
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const user = await getCurrentUser();
+        
+        if (user) {
+          const adminStatus = await isUserAdmin(user);
+          
+          if (adminStatus) {
+            navigate('/admin', { replace: true });
+          }
+        }
+        
+        // Seed demo admin user on first load
+        await seedAdminUser();
+      } catch (error) {
+        console.error('Auth check error:', error);
+      } finally {
+        setCheckingAuth(false);
+      }
+    };
+    
+    checkAuth();
+  }, [navigate]);
+  
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     try {
       setIsLoading(true);
       setError(null);
       
       await signIn(data.email, data.password);
-      navigate('/admin');
+      
+      toast({
+        title: "Login successful",
+        description: "You've been logged in successfully.",
+      });
+      
+      navigate('/admin', { replace: true });
     } catch (error: any) {
       console.error('Login error:', error);
       
       if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
         setError('Invalid email or password');
+      } else if (error.code === 'auth/too-many-requests') {
+        setError('Too many failed login attempts. Please try again later.');
       } else {
         setError('An error occurred during login. Please try again.');
       }
@@ -49,9 +87,20 @@ export default function LoginPage() {
     }
   };
   
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p>Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="w-full max-w-md p-8 space-y-8 bg-card rounded-lg shadow-lg">
+      <div className="w-full max-w-md p-8 space-y-8 glass-surface rounded-lg shadow-lg">
         <div className="text-center">
           <h1 className="text-3xl font-bold">Admin Login</h1>
           <p className="text-muted-foreground mt-2">Sign in to manage documentation</p>
