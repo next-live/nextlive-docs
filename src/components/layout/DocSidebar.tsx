@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, BookOpen, FileText, BookMarked } from 'lucide-react';
 import { DocCategoryWithPages } from '@/types/documentation';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -61,9 +61,10 @@ export function DocSidebar({ categories, isLoading = false }: DocSidebarProps) {
       <div className="mb-4">
         <Link
           to="/docs"
-          className={`block py-2 px-2 rounded-md ${location.pathname === '/docs' ? 'bg-doc-light-purple text-doc-purple' : 'text-muted-foreground hover:text-foreground hover:bg-background'}`}
+          className={`flex items-center gap-2 py-2 px-2 rounded-md transition-all ${location.pathname === '/docs' ? 'bg-doc-light-purple text-doc-purple' : 'text-muted-foreground hover:text-foreground hover:bg-background'}`}
         >
-          Introduction
+          <BookOpen className="h-4 w-4" />
+          <span>Introduction</span>
         </Link>
       </div>
       
@@ -71,25 +72,29 @@ export function DocSidebar({ categories, isLoading = false }: DocSidebarProps) {
         <div key={category.id} className="mb-4">
           <button
             onClick={() => toggleCategory(category.id)}
-            className="flex items-center justify-between w-full text-left font-medium py-2 px-2 rounded-md hover:bg-accent"
+            className="flex items-center justify-between w-full text-left font-medium py-2 px-2 rounded-md hover:bg-accent group transition-all"
           >
-            <span>{category.title}</span>
+            <div className="flex items-center">
+              <BookMarked className="h-4 w-4 mr-2 text-doc-purple group-hover:text-doc-purple" />
+              <span>{category.title}</span>
+            </div>
             {expandedCategories[category.id] ? (
-              <ChevronDown className="h-4 w-4" />
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
             ) : (
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
             )}
           </button>
           
           {expandedCategories[category.id] && (
-            <div className="ml-2 pl-2 border-l mt-1 space-y-1">
+            <div className="ml-2 pl-2 border-l border-doc-light-purple/50 mt-1 space-y-1 animate-accordion-down">
               {category.pages.map((page) => (
                 <Link
                   key={page.id}
                   to={`/docs/${category.slug}/${page.slug}`}
-                  className={`block py-1 px-2 text-sm rounded-md ${location.pathname === `/docs/${category.slug}/${page.slug}` ? 'bg-doc-light-purple text-doc-purple' : 'text-muted-foreground hover:text-foreground hover:bg-background'}`}
+                  className={`flex items-center gap-2 py-1 px-2 text-sm rounded-md transition-colors ${location.pathname === `/docs/${category.slug}/${page.slug}` ? 'bg-doc-light-purple text-doc-purple' : 'text-muted-foreground hover:text-foreground hover:bg-background'}`}
                 >
-                  {page.title}
+                  <FileText className="h-3.5 w-3.5" />
+                  <span>{page.title}</span>
                 </Link>
               ))}
             </div>

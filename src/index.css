@@ -123,15 +123,15 @@
   }
   
   .glass-card {
-    @apply rounded-xl backdrop-blur-lg bg-white/20 dark:bg-black/20 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.15)] transition-all duration-300;
+    @apply rounded-xl backdrop-blur-lg bg-white/20 dark:bg-black/20 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_32px_rgba(155,135,245,0.15)] transition-all duration-300;
   }
   
   .glass-surface {
-    @apply backdrop-blur-md bg-white/40 dark:bg-black/40 border border-white/30 dark:border-white/10 rounded-lg;
+    @apply backdrop-blur-md bg-white/40 dark:bg-black/40 border border-white/30 dark:border-white/10 rounded-lg shadow-sm hover:shadow-md transition-shadow;
   }
   
   .glass-button {
-    @apply bg-white/20 dark:bg-white/10 backdrop-blur-md border border-white/30 dark:border-white/10 shadow-sm hover:bg-white/30 dark:hover:bg-white/20 transition-all;
+    @apply bg-white/20 dark:bg-white/10 backdrop-blur-md border border-white/30 dark:border-white/10 shadow-sm hover:bg-white/30 dark:hover:bg-white/20 transition-all hover:text-doc-purple;
   }
   
   .glass-input {
@@ -140,17 +140,18 @@
   
   .glass-shine {
     @apply relative overflow-hidden;
-    &::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 80%);
-      transform: rotate(30deg);
-      animation: shine 8s infinite linear;
-    }
+  }
+
+  .glass-shine::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 80%);
+    transform: rotate(30deg);
+    animation: shine 8s infinite linear;
   }
   
   @keyframes shine {

@@ -1,9 +1,9 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getPageBySlug, getCategoryBySlug } from '@/services/documentationService';
+import { getPageBySlug } from '@/services/documentationService';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ChevronLeft, ChevronRight, Clock, Calendar } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Clock, Calendar, FileText, AlertTriangle, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DocPage as DocPageType } from '@/types/documentation';
 import ReactMarkdown from 'react-markdown';
@@ -73,9 +73,15 @@ export default function DocPage() {
     return (
       <div className="container py-10 max-w-4xl">
         <div className="glass-card p-8">
-          <h1 className="text-3xl font-bold mb-4">Error</h1>
+          <div className="flex items-center gap-3 text-destructive mb-4">
+            <AlertTriangle className="h-6 w-6" />
+            <h1 className="text-3xl font-bold">Error</h1>
+          </div>
           <p className="text-muted-foreground mb-6">{error}</p>
-          <Button onClick={() => navigate('/docs')} className="glass-button">Back to Documentation</Button>
+          <Button onClick={() => navigate('/docs')} className="glass-button flex items-center gap-2">
+            <Home className="h-4 w-4" />
+            Back to Documentation
+          </Button>
         </div>
       </div>
     );
@@ -88,7 +94,10 @@ export default function DocPage() {
   return (
     <div className="container py-10 max-w-4xl">
       <div className="glass-card glass-shine p-8 mb-8">
-        <h1 className="text-4xl font-bold mb-4 text-gradient">{page.title}</h1>
+        <div className="flex items-center gap-3 mb-2">
+          <FileText className="h-8 w-8 text-doc-purple" />
+          <h1 className="text-4xl font-bold text-gradient">{page.title}</h1>
+        </div>
         
         {(page.updatedAt || page.publishedAt) && (
           <div className="flex items-center gap-6 text-sm text-muted-foreground mb-4">
@@ -133,7 +142,7 @@ export default function DocPage() {
       </div>
       
       <div className="glass-card p-6 flex items-center justify-between">
-        <Button variant="ghost" asChild className="glass-button">
+        <Button variant="ghost" asChild className="glass-button flex items-center">
           <a href="#" onClick={(e) => {
             e.preventDefault();
             navigate(-1);
@@ -143,7 +152,7 @@ export default function DocPage() {
           </a>
         </Button>
         
-        <Button variant="ghost" asChild className="glass-button">
+        <Button variant="ghost" asChild className="glass-button flex items-center">
           <a href="#" onClick={(e) => {
             e.preventDefault();
             // This would need logic to get next page

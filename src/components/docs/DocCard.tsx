@@ -16,7 +16,7 @@ export function DocCard({ title, description, icon, link, className }: DocCardPr
     <Link
       to={link}
       className={cn(
-        "doc-card group flex flex-col h-full transition-all hover:border-primary",
+        "glass-card group flex flex-col h-full p-6 transition-all hover:shadow-[0_8px_30px_rgba(155,135,245,0.15)] border border-white/20 dark:border-white/10 hover:border-doc-purple/30",
         className
       )}
     >
@@ -25,13 +25,13 @@ export function DocCard({ title, description, icon, link, className }: DocCardPr
           {icon}
         </div>
       )}
-      <h3 className="text-xl font-medium text-foreground mb-2 group-hover:text-doc-purple">
+      <h3 className="text-xl font-medium text-foreground mb-2 group-hover:text-doc-purple transition-colors">
         {title}
       </h3>
       <p className="text-muted-foreground flex-grow mb-4">{description}</p>
-      <div className="flex items-center text-doc-purple font-medium">
+      <div className="flex items-center text-doc-purple font-medium mt-auto">
         <span>Learn more</span>
-        <ChevronRight className="h-4 w-4 ml-1 transition-transform group-hover:translate-x-0.5" />
+        <ChevronRight className="h-4 w-4 ml-1 transition-transform group-hover:translate-x-1" />
       </div>
     </Link>
   );
