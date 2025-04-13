@@ -15,6 +15,7 @@ import DocIndexPage from "./pages/docs/DocIndexPage";
 import DocPage from "./pages/docs/DocPage";
 import SearchPage from "./pages/SearchPage";
 import LoginPage from "./pages/admin/LoginPage";
+import SignupPage from "./pages/admin/SignupPage";
 import DashboardPage from "./pages/admin/DashboardPage";
 import DocumentsPage from "./pages/admin/documents/DocumentsPage";
 import DocumentEditPage from "./pages/admin/documents/DocumentEditPage";
@@ -47,6 +48,7 @@ const App = () => {
             
             {/* Admin Routes */}
             <Route path="admin/login" element={<LoginPage />} />
+            <Route path="admin/signup" element={<SignupPage />} />
             <Route path="admin" element={<AdminLayout />}>
               <Route index element={<DashboardPage />} />
               <Route path="documents" element={<DocumentsPage />} />

@@ -1,204 +1,193 @@
 import { 
   collection, 
-  getDocs,
-  getDoc,
-  doc,
+  doc, 
+  getDoc, 
+  getDocs, 
+  orderBy, 
   query,
-  where,
-  orderBy,
-  addDoc,
+  setDoc,
   updateDoc,
   deleteDoc,
-  serverTimestamp,
-  DocumentReference,
-  CollectionReference
+  where
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { DocCategory, DocPage, DocCategoryWithPages } from '../types/documentation';
+import { DocCategory, DocPage } from '../types/documentation';
 
-// Categories
-export const getCategories = async (publishedOnly: boolean = false): Promise<DocCategory[]> => {
-  let q = query(collection(db, 'categories'));
-  
-  if (publishedOnly) {
-    q = query(q, where('published', '==', true));
+// Document Categories
+export const getCategories = async (): Promise<DocCategory[]> => {
+  try {
+    const categoriesRef = collection(db, 'categories');
+    const q = query(categoriesRef, orderBy('order'));
+    
+    const querySnapshot = await getDocs(q);
+    const categories: DocCategory[] = [];
+    
+    querySnapshot.forEach((doc) => {
+      categories.push({ id: doc.id, ...doc.data() } as DocCategory);
+    });
+    
+    return categories;
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    return [];
   }
-  
-  q = query(q, orderBy('order', 'asc'));
-  
-  const querySnapshot = await getDocs(q);
-  
-  return querySnapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  })) as DocCategory[];
 };
 
-export const getCategoryById = async (id: string): Promise<DocCategory | null> => {
-  const docRef = doc(db, 'categories', id);
-  const docSnap = await getDoc(docRef);
-  
-  if (docSnap.exists()) {
-    return {
-      id: docSnap.id,
-      ...docSnap.data()
-    } as DocCategory;
-  } else {
+export const getCategory = async (id: string): Promise<DocCategory | null> => {
+  try {
+    const docRef = doc(db, 'categories', id);
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() } as DocCategory;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching category:', error);
     return null;
   }
 };
 
-export const createCategory = async (category: Omit<DocCategory, 'id'>): Promise<DocumentReference> => {
-  return await addDoc(collection(db, 'categories'), {
-    ...category,
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp()
-  });
+export const createCategory = async (category: Omit<DocCategory, 'id'>): Promise<DocCategory> => {
+  try {
+    const docRef = doc(collection(db, 'categories'));
+    const newCategory = { ...category, id: docRef.id };
+    await setDoc(docRef, newCategory);
+    return newCategory;
+  } catch (error) {
+    console.error('Error creating category:', error);
+    throw error;
+  }
 };
 
 export const updateCategory = async (id: string, updates: Partial<DocCategory>): Promise<void> => {
-  const docRef = doc(db, 'categories', id);
-  await updateDoc(docRef, {
-    ...updates,
-    updatedAt: serverTimestamp()
-  });
+  try {
+    const docRef = doc(db, 'categories', id);
+    await updateDoc(docRef, updates);
+  } catch (error) {
+    console.error('Error updating category:', error);
+    throw error;
+  }
 };
 
 export const deleteCategory = async (id: string): Promise<void> => {
-  const docRef = doc(db, 'categories', id);
-  await deleteDoc(docRef);
-};
-
-// Pages
-export const getPages = async (categoryId: string, publishedOnly: boolean = false): Promise<DocPage[]> => {
-  let q = query(collection(db, 'categories', categoryId, 'pages'));
-  
-  if (publishedOnly) {
-    q = query(q, where('published', '==', true));
-  }
-  
-  q = query(q, orderBy('order', 'asc'));
-  
-  const querySnapshot = await getDocs(q);
-  
-  return querySnapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  })) as DocPage[];
-};
-
-export const getPageById = async (categoryId: string, pageId: string): Promise<DocPage | null> => {
-  const docRef = doc(db, 'categories', categoryId, 'pages', pageId);
-  const docSnap = await getDoc(docRef);
-  
-  if (docSnap.exists()) {
-    return {
-      id: docSnap.id,
-      ...docSnap.data()
-    } as DocPage;
-  } else {
-    return null;
+  try {
+    const docRef = doc(db, 'categories', id);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error('Error deleting category:', error);
+    throw error;
   }
 };
 
-export const createPage = async (categoryId: string, page: Omit<DocPage, 'id'>): Promise<DocumentReference> => {
-  return await addDoc(collection(db, 'categories', categoryId, 'pages'), {
-    ...page,
-    categoryId: categoryId,
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp()
-  });
+// Document Pages
+export const getPages = async (categoryId?: string): Promise<DocPage[]> => {
+  try {
+    let pagesRef = collection(db, 'pages');
+    let q;
+    
+    if (categoryId) {
+      q = query(
+        pagesRef,
+        where('categoryId', '==', categoryId),
+        orderBy('order')
+      );
+    } else {
+      q = query(pagesRef, orderBy('categoryId'), orderBy('order'));
+    }
+    
+    const querySnapshot = await getDocs(q);
+    const pages: DocPage[] = [];
+    
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      pages.push({
+        id: doc.id,
+        ...data,
+        createdAt: data.createdAt?.toDate() || new Date(),
+        updatedAt: data.updatedAt?.toDate() || new Date(),
+        publishedAt: data.publishedAt?.toDate() || null
+      } as DocPage);
+    });
+    
+    return pages;
+  } catch (error) {
+    console.error('Error fetching pages:', error);
+    return [];
+  }
 };
 
-export const updatePage = async (categoryId: string, pageId: string, updates: Partial<DocPage>): Promise<void> => {
-  const docRef = doc(db, 'categories', categoryId, 'pages', pageId);
-  await updateDoc(docRef, {
-    ...updates,
-    updatedAt: serverTimestamp()
-  });
-};
-
-export const deletePage = async (categoryId: string, pageId: string): Promise<void> => {
-  const docRef = doc(db, 'categories', categoryId, 'pages', pageId);
-  await deleteDoc(docRef);
-};
-
-// Categories with Pages
-export const getCategoriesWithPages = async (publishedOnly: boolean = false): Promise<DocCategoryWithPages[]> => {
-  const categories = await getCategories(publishedOnly);
-  
-  return Promise.all(
-    categories.map(async (category) => {
-      const pages = await getPages(category.id, publishedOnly);
+export const getPage = async (id: string): Promise<DocPage | null> => {
+  try {
+    const docRef = doc(db, 'pages', id);
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      const data = docSnap.data();
       return {
-        ...category,
-        pages: pages
-      };
-    })
-  );
-};
-
-// Get page by slug
-export const getPageBySlug = async (categorySlug: string, pageSlug: string): Promise<DocPage | null> => {
-  const categories = await getCategories(true);
-  const category = categories.find(cat => cat.slug === categorySlug);
-  
-  if (!category) {
+        id: docSnap.id,
+        ...data,
+        createdAt: data.createdAt?.toDate() || new Date(),
+        updatedAt: data.updatedAt?.toDate() || new Date(),
+        publishedAt: data.publishedAt?.toDate() || null
+      } as DocPage;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching page:', error);
     return null;
   }
-  
-  const pages = await getPages(category.id, true);
-  const page = pages.find(p => p.slug === pageSlug);
-  
-  if (!page) {
-    return null;
-  }
-  
-  return page;
 };
 
-// Search pages
-export const searchPages = async (searchTerm: string): Promise<DocPage[]> => {
-  const categories = await getCategories(true);
-  
-  const allPages = await Promise.all(
-    categories.map(async (category) => {
-      return await getPages(category.id, true);
-    })
-  );
-  
-  const flattenedPages = allPages.flat();
-  
-  const results = flattenedPages.filter(page => {
-    return page.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           page.content.toLowerCase().includes(searchTerm.toLowerCase());
-  });
-  
-  return results;
-};
-
-// Get all admin users (fix the typing issue)
-export const getAdminUsers = async () => {
-  const adminUsersRef = collection(db, 'adminUsers');
-  const querySnapshot = await getDocs(adminUsersRef);
-  
-  return querySnapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  }));
-};
-
-// Get admin user by ID (fix the typing issue)
-export const getAdminUserById = async (id: string) => {
-  const docRef = doc(db, 'adminUsers', id);
-  const docSnap = await getDoc(docRef);
-  
-  if (docSnap.exists()) {
-    return {
-      id: docSnap.id,
-      ...docSnap.data()
+export const createPage = async (page: Omit<DocPage, 'id' | 'createdAt' | 'updatedAt'>): Promise<DocPage> => {
+  try {
+    const docRef = doc(collection(db, 'pages'));
+    const createdAt = new Date();
+    const updatedAt = new Date();
+    
+    const newPage: DocPage = {
+      id: docRef.id,
+      ...page,
+      createdAt,
+      updatedAt,
     };
+    
+    await setDoc(docRef, {
+      ...page,
+      createdAt,
+      updatedAt,
+    });
+    
+    return newPage;
+  } catch (error) {
+    console.error('Error creating page:', error);
+    throw error;
   }
-  
-  return null;
+};
+
+export const updatePage = async (id: string, pageData: Partial<DocPage>): Promise<void> => {
+  try {
+    const docRef = doc(db, 'pages', id);
+    const updatedAt = new Date();
+    
+    await updateDoc(docRef, {
+      ...pageData,
+      updatedAt,
+    });
+  } catch (error) {
+    console.error('Error updating page:', error);
+    throw error;
+  }
+};
+
+export const deletePage = async (id: string): Promise<void> => {
+  try {
+    const docRef = doc(db, 'pages', id);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error('Error deleting page:', error);
+    throw error;
+  }
 };

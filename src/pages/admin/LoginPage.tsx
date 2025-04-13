@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -8,7 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2 } from 'lucide-react';
+import { Loader2, LogIn, UserPlus } from 'lucide-react';
 import { signIn, getCurrentUser, isUserAdmin, seedAdminUser } from '@/services/authService';
 import { useToast } from '@/hooks/use-toast';
 
@@ -102,7 +102,10 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="w-full max-w-md p-8 space-y-8 glass-surface rounded-lg shadow-lg">
         <div className="text-center">
-          <h1 className="text-3xl font-bold">Admin Login</h1>
+          <h1 className="text-3xl font-bold flex items-center justify-center gap-2">
+            <LogIn className="h-7 w-7 text-primary" />
+            Admin Login
+          </h1>
           <p className="text-muted-foreground mt-2">Sign in to manage documentation</p>
         </div>
         
@@ -142,16 +145,31 @@ export default function LoginPage() {
               )}
             />
             
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
-                  Signing In...
-                </>
-              ) : (
-                'Sign In'
-              )}
-            </Button>
+            <div className="flex flex-col gap-3">
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+                    Signing In...
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="mr-2 h-4 w-4" /> 
+                    Sign In
+                  </>
+                )}
+              </Button>
+              
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => navigate('/admin/signup')}
+                className="w-full"
+              >
+                <UserPlus className="mr-2 h-4 w-4" />
+                Create Admin Account
+              </Button>
+            </div>
           </form>
         </Form>
         
