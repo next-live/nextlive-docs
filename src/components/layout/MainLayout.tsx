@@ -63,7 +63,8 @@ export function MainLayout() {
   };
   
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-purple-50/30 to-blue-50/30 dark:from-purple-900/10 dark:to-blue-900/10">
+      <div className="fixed inset-0 bg-[url('/subtle-pattern.png')] opacity-5 pointer-events-none z-0"></div>
       <Header 
         toggleTheme={toggleTheme} 
         isDark={isDark} 
@@ -71,16 +72,16 @@ export function MainLayout() {
         isMobile={isMobile && isDocPage}
       />
       
-      <div className="flex flex-1">
+      <div className="flex flex-1 relative z-10">
         {isDocPage && !isMobile && (
-          <aside className="w-64 border-r min-h-[calc(100vh-4rem)] sticky top-16 shrink-0 overflow-y-auto px-4">
+          <aside className="w-64 min-h-[calc(100vh-4rem)] sticky top-16 shrink-0 overflow-y-auto glass-surface ml-4 mt-4 px-4">
             <DocSidebar categories={docCategories} isLoading={isLoading} />
           </aside>
         )}
         
         {isDocPage && isMobile && (
           <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-            <SheetContent side="left" className="w-64 p-0">
+            <SheetContent side="left" className="w-64 p-0 glass-surface">
               <div className="p-4 overflow-y-auto h-full">
                 <DocSidebar categories={docCategories} isLoading={isLoading} />
               </div>

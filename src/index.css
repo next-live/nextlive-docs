@@ -92,6 +92,8 @@
 
   body {
     @apply bg-background text-foreground;
+    background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
+    background-attachment: fixed;
   }
 
   .prose pre {
@@ -105,7 +107,7 @@
 
 @layer components {
   .doc-card {
-    @apply p-6 bg-white dark:bg-doc-dark-bg rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-border;
+    @apply p-6 rounded-xl transition-shadow duration-300 backdrop-blur-md bg-white/50 dark:bg-white/5 border border-white/20 dark:border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)];
   }
 
   .doc-header {
@@ -118,5 +120,59 @@
 
   .doc-text {
     @apply text-muted-foreground;
+  }
+  
+  .glass-card {
+    @apply rounded-xl backdrop-blur-lg bg-white/20 dark:bg-black/20 border border-white/30 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.15)] transition-all duration-300;
+  }
+  
+  .glass-surface {
+    @apply backdrop-blur-md bg-white/40 dark:bg-black/40 border border-white/30 dark:border-white/10 rounded-lg;
+  }
+  
+  .glass-button {
+    @apply bg-white/20 dark:bg-white/10 backdrop-blur-md border border-white/30 dark:border-white/10 shadow-sm hover:bg-white/30 dark:hover:bg-white/20 transition-all;
+  }
+  
+  .glass-input {
+    @apply bg-white/30 dark:bg-black/20 backdrop-blur-md border-white/20 dark:border-white/10 focus:ring-2 focus:ring-primary/50;
+  }
+  
+  .glass-shine {
+    @apply relative overflow-hidden;
+    &::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 80%);
+      transform: rotate(30deg);
+      animation: shine 8s infinite linear;
+    }
+  }
+  
+  @keyframes shine {
+    0% {
+      transform: translateX(-100%) translateY(-100%) rotate(30deg);
+    }
+    100% {
+      transform: translateX(100%) translateY(100%) rotate(30deg);
+    }
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-purple-600 via-violet-500 to-indigo-400 bg-clip-text text-transparent;
+  }
+  
+  .bg-glass-light {
+    @apply bg-white/30 backdrop-blur-md;
+  }
+  
+  .bg-glass-dark {
+    @apply bg-black/30 backdrop-blur-md;
   }
 }

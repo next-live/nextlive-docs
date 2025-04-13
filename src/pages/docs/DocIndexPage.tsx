@@ -27,16 +27,16 @@ export default function DocIndexPage() {
   }, []);
   
   return (
-    <div className="container py-10 max-w-4xl">
-      <div className="mb-10">
-        <h1 className="text-4xl font-bold mb-4">Documentation</h1>
+    <div className="container py-10 max-w-4xl relative z-10">
+      <div className="mb-10 glass-card glass-shine p-8">
+        <h1 className="text-4xl font-bold mb-4 text-gradient">Documentation</h1>
         <p className="text-xl text-muted-foreground">
           Welcome to the NextLive documentation. Find everything you need to build amazing applications.
         </p>
       </div>
       
-      <div className="mb-10">
-        <h2 className="text-2xl font-bold mb-4">Getting Started</h2>
+      <div className="mb-10 glass-card p-8">
+        <h2 className="text-2xl font-bold mb-4 text-gradient">Getting Started</h2>
         <p className="text-muted-foreground mb-6">
           Learn the basics of NextLive and start building your first application.
         </p>
@@ -44,7 +44,7 @@ export default function DocIndexPage() {
         <div className="grid md:grid-cols-2 gap-6 mb-8">
           <Link 
             to="/docs/getting-started/installation" 
-            className="doc-card group flex flex-col"
+            className="glass-surface p-6 group flex flex-col hover:shadow-lg transition-all"
           >
             <h3 className="text-lg font-medium group-hover:text-doc-purple">Installation Guide</h3>
             <p className="text-sm text-muted-foreground flex-grow">
@@ -58,7 +58,7 @@ export default function DocIndexPage() {
           
           <Link 
             to="/docs/getting-started/quick-start" 
-            className="doc-card group flex flex-col"
+            className="glass-surface p-6 group flex flex-col hover:shadow-lg transition-all"
           >
             <h3 className="text-lg font-medium group-hover:text-doc-purple">Quick Start</h3>
             <p className="text-sm text-muted-foreground flex-grow">
@@ -74,10 +74,10 @@ export default function DocIndexPage() {
       
       <div className="space-y-10">
         {categories.map((category) => (
-          <div key={category.id} className="mb-10">
+          <div key={category.id} className="mb-10 glass-card p-8">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold">{category.title}</h2>
-              <Button variant="ghost" size="sm" asChild>
+              <h2 className="text-2xl font-bold text-gradient">{category.title}</h2>
+              <Button variant="ghost" size="sm" asChild className="glass-button">
                 <Link to={`/docs/${category.slug}`}>
                   View All
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -93,7 +93,7 @@ export default function DocIndexPage() {
                 <Link
                   key={page.id}
                   to={`/docs/${category.slug}/${page.slug}`}
-                  className="doc-card group flex flex-col"
+                  className="glass-surface p-6 group flex flex-col hover:shadow-lg transition-all"
                 >
                   <h3 className="text-lg font-medium group-hover:text-doc-purple">{page.title}</h3>
                   <div className="flex items-center text-doc-purple text-sm font-medium mt-2">

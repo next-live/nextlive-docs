@@ -72,9 +72,11 @@ export default function DocPage() {
   if (error) {
     return (
       <div className="container py-10 max-w-4xl">
-        <h1 className="text-3xl font-bold mb-4">Error</h1>
-        <p className="text-muted-foreground mb-6">{error}</p>
-        <Button onClick={() => navigate('/docs')}>Back to Documentation</Button>
+        <div className="glass-card p-8">
+          <h1 className="text-3xl font-bold mb-4">Error</h1>
+          <p className="text-muted-foreground mb-6">{error}</p>
+          <Button onClick={() => navigate('/docs')} className="glass-button">Back to Documentation</Button>
+        </div>
       </div>
     );
   }
@@ -85,49 +87,53 @@ export default function DocPage() {
   
   return (
     <div className="container py-10 max-w-4xl">
-      <h1 className="text-4xl font-bold mb-4">{page.title}</h1>
-      
-      {(page.updatedAt || page.publishedAt) && (
-        <div className="flex items-center gap-6 text-sm text-muted-foreground mb-8">
-          {page.updatedAt && (
-            <div className="flex items-center gap-1">
-              <Clock className="h-4 w-4" />
-              <span>Updated: {page.updatedAt.toLocaleDateString()}</span>
-            </div>
-          )}
-          {page.publishedAt && (
-            <div className="flex items-center gap-1">
-              <Calendar className="h-4 w-4" />
-              <span>Published: {page.publishedAt.toLocaleDateString()}</span>
-            </div>
-          )}
-        </div>
-      )}
-      
-      <div className="prose dark:prose-invert max-w-none mb-12">
-        <ReactMarkdown
-          components={{
-            code({ node, inline, className, children, ...props }) {
-              const match = /language-(\w+)/.exec(className || '');
-              return !inline && match ? (
-                <CodeBlock
-                  code={String(children).replace(/\n$/, '')}
-                  language={match[1]}
-                />
-              ) : (
-                <code className={className} {...props}>
-                  {children}
-                </code>
-              );
-            },
-          }}
-        >
-          {page.content}
-        </ReactMarkdown>
+      <div className="glass-card glass-shine p-8 mb-8">
+        <h1 className="text-4xl font-bold mb-4 text-gradient">{page.title}</h1>
+        
+        {(page.updatedAt || page.publishedAt) && (
+          <div className="flex items-center gap-6 text-sm text-muted-foreground mb-4">
+            {page.updatedAt && (
+              <div className="flex items-center gap-1">
+                <Clock className="h-4 w-4" />
+                <span>Updated: {page.updatedAt.toLocaleDateString()}</span>
+              </div>
+            )}
+            {page.publishedAt && (
+              <div className="flex items-center gap-1">
+                <Calendar className="h-4 w-4" />
+                <span>Published: {page.publishedAt.toLocaleDateString()}</span>
+              </div>
+            )}
+          </div>
+        )}
       </div>
       
-      <div className="flex items-center justify-between pt-6 border-t">
-        <Button variant="ghost" asChild>
+      <div className="glass-card p-8 mb-8">
+        <div className="prose dark:prose-invert max-w-none">
+          <ReactMarkdown
+            components={{
+              code({ node, className, children, ...props }) {
+                const match = /language-(\w+)/.exec(className || '');
+                return !match ? (
+                  <code className={className} {...props}>
+                    {children}
+                  </code>
+                ) : (
+                  <CodeBlock
+                    code={String(children).replace(/\n$/, '')}
+                    language={match[1]}
+                  />
+                );
+              },
+            }}
+          >
+            {page.content}
+          </ReactMarkdown>
+        </div>
+      </div>
+      
+      <div className="glass-card p-6 flex items-center justify-between">
+        <Button variant="ghost" asChild className="glass-button">
           <a href="#" onClick={(e) => {
             e.preventDefault();
             navigate(-1);
@@ -137,7 +143,7 @@ export default function DocPage() {
           </a>
         </Button>
         
-        <Button variant="ghost" asChild>
+        <Button variant="ghost" asChild className="glass-button">
           <a href="#" onClick={(e) => {
             e.preventDefault();
             // This would need logic to get next page
