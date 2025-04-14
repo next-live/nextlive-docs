@@ -1,3 +1,4 @@
+
 import { 
   collection, 
   doc, 
@@ -8,10 +9,11 @@ import {
   setDoc,
   updateDoc,
   deleteDoc,
-  where
+  where,
+  DocumentData
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { DocCategory, DocPage } from '../types/documentation';
+import { DocCategory, DocPage, DocCategoryWithPages } from '../types/documentation';
 
 // Document Categories
 export const getCategories = async (): Promise<DocCategory[]> => {
@@ -141,6 +143,43 @@ export const getPage = async (id: string): Promise<DocPage | null> => {
   }
 };
 
+export const getPageBySlug = async (categorySlug: string, pageSlug: string): Promise<DocPage | null> => {
+  try {
+    const pagesRef = collection(db, 'pages');
+    const q = query(pagesRef, where('slug', '==', pageSlug));
+    const querySnapshot = await getDocs(q);
+    
+    if (querySnapshot.empty) {
+      return null;
+    }
+    
+    let foundPage: DocPage | null = null;
+    
+    for (const docSnap of querySnapshot.docs) {
+      const data = docSnap.data();
+      // Check if the page belongs to a category with the specified slug
+      const categoryRef = doc(db, 'categories', data.categoryId);
+      const categorySnap = await getDoc(categoryRef);
+      
+      if (categorySnap.exists() && categorySnap.data().slug === categorySlug) {
+        foundPage = {
+          id: docSnap.id,
+          ...data,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date(),
+          publishedAt: data.publishedAt?.toDate() || null
+        } as DocPage;
+        break;
+      }
+    }
+    
+    return foundPage;
+  } catch (error) {
+    console.error('Error fetching page by slug:', error);
+    return null;
+  }
+};
+
 export const createPage = async (page: Omit<DocPage, 'id' | 'createdAt' | 'updatedAt'>): Promise<DocPage> => {
   try {
     const docRef = doc(collection(db, 'pages'));
@@ -189,5 +228,32 @@ export const deletePage = async (id: string): Promise<void> => {
   } catch (error) {
     console.error('Error deleting page:', error);
     throw error;
+  }
+};
+
+// Get categories with their pages
+export const getCategoriesWithPages = async (publishedOnly: boolean = false): Promise<DocCategoryWithPages[]> => {
+  try {
+    const categories = await getCategories();
+    const result: DocCategoryWithPages[] = [];
+    
+    for (const category of categories) {
+      const pages = await getPages(category.id);
+      
+      // Filter pages based on published status if required
+      const filteredPages = publishedOnly 
+        ? pages.filter(page => page.status === 'published' && page.publishedAt !== null)
+        : pages;
+      
+      result.push({
+        ...category,
+        pages: filteredPages
+      });
+    }
+    
+    return result;
+  } catch (error) {
+    console.error('Error fetching categories with pages:', error);
+    return [];
   }
 };
