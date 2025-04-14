@@ -87,7 +87,7 @@ export function DocSidebar({ categories, isLoading = false }: DocSidebarProps) {
           
           {expandedCategories[category.id] && (
             <div className="ml-2 pl-2 border-l border-doc-light-purple/50 mt-1 space-y-1 animate-accordion-down">
-              {category.pages.map((page) => (
+              {category.pages.filter(page => page.categoryId === category.id).map((page) => (
                 <Link
                   key={page.id}
                   to={`/docs/${category.slug}/${page.slug}`}
