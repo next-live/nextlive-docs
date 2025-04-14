@@ -172,12 +172,6 @@ export default function LoginPage() {
             </div>
           </form>
         </Form>
-        
-        <div className="text-center text-sm text-muted-foreground">
-          <p>Default admin account for demo:</p>
-          <p>Email: admin@example.com</p>
-          <p>Password: password123</p>
-        </div>
       </div>
     </div>
   );

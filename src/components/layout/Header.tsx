@@ -52,7 +52,9 @@ export function Header({ toggleTheme, isDark, toggleSidebar, isMobile }: HeaderP
             </Button>
           )}
           <Link to="/" className="flex items-center gap-2">
-            <div className="bg-doc-purple text-white p-1 rounded">NL</div>
+            <div className="text-white p-1 rounded">
+              <img src="/favicon.ico" alt="Logo" className="h-20 w-20" />
+            </div>
             <span className="font-bold text-lg">NextLive Docs</span>
           </Link>
         </div>
@@ -70,12 +72,6 @@ export function Header({ toggleTheme, isDark, toggleSidebar, isMobile }: HeaderP
           <nav className="hidden md:flex items-center gap-6">
             <Link to="/docs" className="text-muted-foreground hover:text-foreground transition-colors">
               Documentation
-            </Link>
-            <Link to="/api" className="text-muted-foreground hover:text-foreground transition-colors">
-              API
-            </Link>
-            <Link to="/admin" className="text-muted-foreground hover:text-foreground transition-colors">
-              Admin
             </Link>
           </nav>
           <Button variant="ghost" size="icon" onClick={toggleTheme}>
