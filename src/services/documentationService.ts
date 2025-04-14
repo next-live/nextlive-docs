@@ -1,4 +1,3 @@
-
 import { 
   collection, 
   doc, 
@@ -103,7 +102,7 @@ export const getPages = async (categoryId?: string): Promise<DocPage[]> => {
     const pages: DocPage[] = [];
     
     querySnapshot.forEach((doc) => {
-      const data = doc.data();
+      const data = doc.data() as DocumentData;
       pages.push({
         id: doc.id,
         ...data,
@@ -126,7 +125,7 @@ export const getPage = async (id: string): Promise<DocPage | null> => {
     const docSnap = await getDoc(docRef);
     
     if (docSnap.exists()) {
-      const data = docSnap.data();
+      const data = docSnap.data() as DocumentData;
       return {
         id: docSnap.id,
         ...data,
@@ -156,7 +155,7 @@ export const getPageBySlug = async (categorySlug: string, pageSlug: string): Pro
     let foundPage: DocPage | null = null;
     
     for (const docSnap of querySnapshot.docs) {
-      const data = docSnap.data();
+      const data = docSnap.data() as DocumentData;
       // Check if the page belongs to a category with the specified slug
       const categoryRef = doc(db, 'categories', data.categoryId);
       const categorySnap = await getDoc(categoryRef);
@@ -242,7 +241,7 @@ export const getCategoriesWithPages = async (publishedOnly: boolean = false): Pr
       
       // Filter pages based on published status if required
       const filteredPages = publishedOnly 
-        ? pages.filter(page => page.status === 'published' && page.publishedAt !== null)
+        ? pages.filter(page => page.published === true && page.publishedAt !== null)
         : pages;
       
       result.push({

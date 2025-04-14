@@ -33,10 +33,17 @@ import {
   Trash2, 
   Plus, 
   Loader2,
-  Search
+  Search,
+  FolderTree
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export default function DocumentsPage() {
   const [documents, setDocuments] = useState<DocPage[]>([]);
@@ -44,6 +51,19 @@ export default function DocumentsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [viewMode, setViewMode] = useState<'list' | 'category'>('list');
+  
+  // Group documents by category
+  const documentsByCategory: Record<string, DocPage[]> = {};
+  
+  if (documents.length > 0) {
+    documents.forEach(doc => {
+      if (!documentsByCategory[doc.categoryId]) {
+        documentsByCategory[doc.categoryId] = [];
+      }
+      documentsByCategory[doc.categoryId].push(doc);
+    });
+  }
   
   useEffect(() => {
     async function loadData() {
@@ -118,13 +138,31 @@ export default function DocumentsPage() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
+        
+        <div className="flex gap-2">
+          <Button 
+            variant={viewMode === 'list' ? 'default' : 'outline'} 
+            size="sm"
+            onClick={() => setViewMode('list')}
+          >
+            List View
+          </Button>
+          <Button 
+            variant={viewMode === 'category' ? 'default' : 'outline'} 
+            size="sm"
+            onClick={() => setViewMode('category')}
+          >
+            <FolderTree className="h-4 w-4 mr-2" />
+            Category View
+          </Button>
+        </div>
       </div>
       
       {isLoading ? (
         <div className="flex justify-center items-center p-12">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
-      ) : (
+      ) : viewMode === 'list' ? (
         <div className="border rounded-md">
           <Table>
             <TableHeader>
@@ -205,6 +243,86 @@ export default function DocumentsPage() {
               )}
             </TableBody>
           </Table>
+        </div>
+      ) : (
+        // Category View
+        <div className="border rounded-md p-4">
+          <Accordion type="multiple" className="w-full" defaultValue={Object.keys(documentsByCategory)}>
+            {Object.entries(documentsByCategory).length === 0 ? (
+              <div className="text-center p-6 text-muted-foreground">
+                No documents found. Create a new document to get started.
+              </div>
+            ) : (
+              Object.entries(documentsByCategory).map(([categoryId, docs]) => {
+                const category = categories[categoryId];
+                
+                // Filter documents based on search
+                const filteredDocs = searchTerm ? 
+                  docs.filter(doc => doc.title.toLowerCase().includes(searchTerm.toLowerCase())) : 
+                  docs;
+                
+                // Skip categories with no matching documents when searching
+                if (searchTerm && filteredDocs.length === 0) {
+                  return null;
+                }
+                
+                // Skip this category if filter is active and doesn't match
+                if (categoryFilter !== 'all' && categoryFilter !== categoryId) {
+                  return null;
+                }
+                
+                return (
+                  <AccordionItem key={categoryId} value={categoryId} className="border-b">
+                    <AccordionTrigger className="hover:bg-accent/50 px-4">
+                      <div className="flex items-center">
+                        <span className="font-medium">{category?.title || 'Unknown Category'}</span>
+                        <Badge variant="outline" className="ml-2">
+                          {filteredDocs.length}
+                        </Badge>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="space-y-2 pl-6 pr-2 py-2">
+                        {filteredDocs.map((doc) => (
+                          <div 
+                            key={doc.id} 
+                            className="flex items-center justify-between p-2 hover:bg-accent/50 rounded-md"
+                          >
+                            <div className="flex items-center">
+                              <span className="font-medium">{doc.title}</span>
+                              {doc.published ? (
+                                <Badge className="ml-2 bg-green-500 hover:bg-green-600">
+                                  <Eye className="h-3 w-3 mr-1" />
+                                  Published
+                                </Badge>
+                              ) : (
+                                <Badge variant="outline" className="ml-2 border-slate-400 text-slate-500">
+                                  <EyeOff className="h-3 w-3 mr-1" />
+                                  Draft
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="icon" asChild>
+                                <Link to={`/admin/documents/${doc.id}`}>
+                                  <Edit className="h-4 w-4" />
+                                </Link>
+                              </Button>
+                              <Button variant="ghost" size="icon" asChild>
+                                <Link to={`/docs/${category?.slug || ''}/${doc.slug}`} target="_blank">
+                                  <Eye className="h-4 w-4" />
+                                </Link>
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                );
+              })
+            )}
+          </Accordion>
         </div>
       )}
     </div>
