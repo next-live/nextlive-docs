@@ -233,22 +233,31 @@ export const deletePage = async (id: string): Promise<void> => {
 // Get categories with their pages
 export const getCategoriesWithPages = async (publishedOnly: boolean = false): Promise<DocCategoryWithPages[]> => {
   try {
+    // Get all categories
     const categories = await getCategories();
-    const result: DocCategoryWithPages[] = [];
     
-    for (const category of categories) {
-      const pages = await getPages(category.id);
-      
-      // Filter pages based on published status if required
-      const filteredPages = publishedOnly 
-        ? pages.filter(page => page.published === true && page.publishedAt !== null)
-        : pages;
-      
-      result.push({
-        ...category,
-        pages: filteredPages
+    // Get all pages (we'll filter them by category later)
+    const allPages = await getPages();
+    
+    // Map categories to include their pages
+    const result: DocCategoryWithPages[] = categories.map(category => {
+      // Filter pages that belong to this category
+      const categoryPages = allPages.filter(page => {
+        // Apply published filter if needed
+        if (publishedOnly) {
+          return page.categoryId === category.id && page.published === true;
+        }
+        return page.categoryId === category.id;
       });
-    }
+      
+      // Sort pages by order
+      categoryPages.sort((a, b) => a.order - b.order);
+      
+      return {
+        ...category,
+        pages: categoryPages
+      };
+    });
     
     return result;
   } catch (error) {
