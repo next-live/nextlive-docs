@@ -1,9 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronDown, ChevronRight, BookOpen, FileText, BookMarked } from 'lucide-react';
-import { DocCategoryWithPages } from '@/types/documentation';
+import { DocCategoryWithPages, DocPage } from '@/types/documentation';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getPagesByCategoryId } from '@/services/documentationService'; // Import the function
 
 interface DocSidebarProps {
   categories: DocCategoryWithPages[];
@@ -13,7 +13,8 @@ interface DocSidebarProps {
 export function DocSidebar({ categories, isLoading = false }: DocSidebarProps) {
   const location = useLocation();
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
-  
+  const [pagesByCategory, setPagesByCategory] = useState<Record<string, DocPage[]>>({});
+
   // Auto-expand the category of the current page
   useEffect(() => {
     if (categories.length > 0) {
@@ -21,7 +22,7 @@ export function DocSidebar({ categories, isLoading = false }: DocSidebarProps) {
       if (pathParts.length >= 3 && pathParts[1] === 'docs') {
         const categorySlug = pathParts[2];
         const category = categories.find(c => c.slug === categorySlug);
-        
+
         if (category) {
           setExpandedCategories(prev => ({
             ...prev,
@@ -31,14 +32,29 @@ export function DocSidebar({ categories, isLoading = false }: DocSidebarProps) {
       }
     }
   }, [categories, location.pathname]);
-  
-  const toggleCategory = (categoryId: string) => {
+
+  // Fetch pages for a category when it is expanded
+  const toggleCategory = async (categoryId: string) => {
     setExpandedCategories(prev => ({
       ...prev,
       [categoryId]: !prev[categoryId]
     }));
+
+    // Fetch pages if not already loaded
+    if (!pagesByCategory[categoryId]) {
+      try {
+        const pages = await getPagesByCategoryId(categoryId);
+        console.log('Fetched pages:', pages);
+        setPagesByCategory(prev => ({
+          ...prev,
+          [categoryId]: pages
+        }));
+      } catch (error) {
+        console.error('Error fetching pages for category:', error);
+      }
+    }
   };
-  
+
   if (isLoading) {
     return (
       <div className="py-2 space-y-4">
@@ -55,7 +71,7 @@ export function DocSidebar({ categories, isLoading = false }: DocSidebarProps) {
       </div>
     );
   }
-  
+
   return (
     <nav className="space-y-1 py-2">
       <div className="mb-4">
@@ -67,7 +83,7 @@ export function DocSidebar({ categories, isLoading = false }: DocSidebarProps) {
           <span>Introduction</span>
         </Link>
       </div>
-      
+
       {categories.map((category) => (
         <div key={category.id} className="mb-4">
           <button
@@ -84,10 +100,10 @@ export function DocSidebar({ categories, isLoading = false }: DocSidebarProps) {
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
             )}
           </button>
-          
+
           {expandedCategories[category.id] && (
             <div className="ml-2 pl-2 border-l border-doc-light-purple/50 mt-1 space-y-1 animate-accordion-down">
-              {category.pages.map((page) => (
+              {(pagesByCategory[category.id] || []).map((page) => (
                 <Link
                   key={page.id}
                   to={`/docs/${category.slug}/${page.slug}`}

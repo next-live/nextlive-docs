@@ -142,6 +142,33 @@ export const getPage = async (id: string): Promise<DocPage | null> => {
   }
 };
 
+export const getPagesByCategoryId = async (categoryId: string): Promise<DocPage[]> => {
+  try {
+    const pagesRef = collection(db, 'pages');
+    const q = query(pagesRef, where('categoryId', '==', categoryId), orderBy('order'));
+    const querySnapshot = await getDocs(q);
+
+    const pages: DocPage[] = [];
+    querySnapshot.forEach((doc) => {
+      const data = doc.data() as DocumentData;
+      pages.push({
+        id: doc.id,
+        ...data,
+        createdAt: data.createdAt?.toDate() || new Date(),
+        updatedAt: data.updatedAt?.toDate() || new Date(),
+        publishedAt: data.publishedAt?.toDate() || null,
+      } as DocPage);
+    });
+
+    return pages;
+  } catch (error) {
+    console.error('Error fetching pages by category ID:', error);
+    return [];
+  }
+};
+
+
+
 export const getPageBySlug = async (categorySlug: string, pageSlug: string): Promise<DocPage | null> => {
   try {
     const pagesRef = collection(db, 'pages');
